@@ -18,8 +18,9 @@ services:
     build: ./fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc
-      - /var/lib/docker/volumes/minikube/_data/lib/docker/containers:/var/log/containers
-      - /home/yql/.minikube:/etc/.minikube
+      - /var/log:/var/log
+      - /etc/.minikube:/etc/.minikube
+      - /var/lib/docker:/var/lib/docker
     links:
       - "elasticsearch"
     environment:
@@ -54,5 +55,6 @@ services:
 
 networks:
   kube:
-    external:
-      name: minikube
+    driver: bridge
+    #external:
+    #  name: bridge
