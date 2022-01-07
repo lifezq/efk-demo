@@ -11,17 +11,25 @@ services:
       options:
         fluentd-address: localhost:24224
         tag: httpd.access
+    networks:
+      - kube
 
   fluentd:
     build: ./fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc
-      - /var/lib/docker/volumes/minikube/_data/log/containers:/var/log/containers
+      - /var/lib/docker/volumes/minikube/_data/lib/docker/containers:/var/log/containers
+      - /home/yql/.minikube:/etc/.minikube
     links:
       - "elasticsearch"
+    environment:
+      - "KUBERNETES_SERVICE_HOST=192.168.49.2"
+      - "KUBERNETES_SERVICE_PORT=8443"
     ports:
       - "24224:24224"
       - "24224:24224/udp"
+    networks:
+      - kube
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
@@ -32,6 +40,8 @@ services:
       - "9200"
     ports:
       - "9200:9200"
+    networks:
+      - kube
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.13.1
@@ -39,3 +49,10 @@ services:
       - "elasticsearch"
     ports:
       - "5601:5601"
+    networks:
+      - kube
+
+networks:
+  kube:
+    external:
+      name: minikube
